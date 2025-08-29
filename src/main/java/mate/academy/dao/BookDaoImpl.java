@@ -10,8 +10,10 @@ import java.util.List;
 import java.util.Optional;
 import mate.academy.ConnectionUtil;
 import mate.academy.DataProcessingException;
+import mate.academy.lib.Dao;
 import mate.academy.model.Book;
 
+@Dao
 public class BookDaoImpl implements BookDao {
 
     @Override
@@ -51,7 +53,7 @@ public class BookDaoImpl implements BookDao {
                 return Optional.of(book);
             }
         } catch (SQLException e) {
-            throw new DataProcessingException("Can't create a connection to the DB", e);
+            throw new DataProcessingException("Can't get a book by id " + id, e);
         }
         return Optional.empty();
     }
@@ -87,7 +89,7 @@ public class BookDaoImpl implements BookDao {
                 throw new SQLException("Failed to update book with id " + book.getId());
             }
         } catch (SQLException e) {
-            throw new DataProcessingException("Can't create a connection to the DB", e);
+            throw new DataProcessingException("Can't update book: " + book, e);
         }
         return book;
     }
@@ -100,12 +102,12 @@ public class BookDaoImpl implements BookDao {
         ) {
             statement.setLong(1, id);
             int affectedRows = statement.executeUpdate();
-            if (affectedRows == 0) {
+            if (affectedRows > 0) {
                 throw new SQLException("Failed to delete book with id " + id);
             }
-            return affectedRows == 1;
+            return false;
         } catch (SQLException e) {
-            throw new DataProcessingException("Can't create a connection to the DB", e);
+            throw new DataProcessingException("Can't delete book by id " + id, e);
         }
     }
 
