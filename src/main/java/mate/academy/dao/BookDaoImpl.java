@@ -47,11 +47,7 @@ public class BookDaoImpl implements BookDao {
             statement.setLong(1, id);
             ResultSet query = statement.executeQuery();
             if (query.next()) {
-                Book book = new Book();
-                book.setId(id);
-                book.setTitle(query.getString("title"));
-                book.setPrice(query.getBigDecimal("price"));
-
+                Book book = parseBookFromResultSet(query);
                 return Optional.of(book);
             }
         } catch (SQLException e) {
@@ -69,20 +65,16 @@ public class BookDaoImpl implements BookDao {
             ResultSet resultSet = statement.executeQuery();
             List<Book> books = new ArrayList<>();
             while (resultSet.next()) {
-                Book book = new Book();
-                book.setId(resultSet.getLong("id"));
-                book.setTitle(resultSet.getString("title"));
-                book.setPrice(resultSet.getBigDecimal("price"));
-                books.add(book);
+                books.add(parseBookFromResultSet(resultSet));
             }
             return books;
         } catch (SQLException e) {
-            throw new DataProcessingException("Can't create a connection to the DB", e);
+            throw new DataProcessingException("Can't get all books from DB", e);
         }
     }
 
     @Override
-    public void update(Book book) {
+    public Book update(Book book) {
         String sql = "UPDATE books SET title = ?, price = ? WHERE id = ?";
         try (Connection connection = ConnectionUtil.getConnection();
                 PreparedStatement statement = connection.prepareStatement(sql)
@@ -97,6 +89,7 @@ public class BookDaoImpl implements BookDao {
         } catch (SQLException e) {
             throw new DataProcessingException("Can't create a connection to the DB", e);
         }
+        return book;
     }
 
     @Override
@@ -114,5 +107,13 @@ public class BookDaoImpl implements BookDao {
         } catch (SQLException e) {
             throw new DataProcessingException("Can't create a connection to the DB", e);
         }
+    }
+
+    private Book parseBookFromResultSet(ResultSet resultSet) throws SQLException {
+        Book book = new Book();
+        book.setId(resultSet.getLong("id"));
+        book.setTitle(resultSet.getString("title"));
+        book.setPrice(resultSet.getBigDecimal("price"));
+        return book;
     }
 }

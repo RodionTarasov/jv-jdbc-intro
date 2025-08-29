@@ -3,16 +3,15 @@ package mate.academy;
 import java.math.BigDecimal;
 import java.util.Optional;
 import mate.academy.dao.BookDao;
-import mate.academy.dao.BookDaoImpl;
 import mate.academy.lib.Injector;
 import mate.academy.model.Book;
 
 public class Main {
 
-    private static final Injector injector = Injector.getInstance("YOUR_PACKAGE");
+    private static final Injector injector = Injector.getInstance("mate.academy");
 
     public static void main(String[] args) {
-        BookDao bookDao = new BookDaoImpl();
+        BookDao bookDao = (BookDao) injector.getInstance(BookDao.class);
 
         Book book = new Book();
         book.setTitle("South Sea Tales");
@@ -27,7 +26,7 @@ public class Main {
         System.out.println("All books in DB:");
         bookDao.findAll().forEach(System.out::println);
 
-        book.setPrice(new BigDecimal("30"));
+        savedBook.setPrice(new BigDecimal("30"));
         bookDao.update(savedBook);
         System.out.println("Updated book price: " + savedBook.getPrice());
 
